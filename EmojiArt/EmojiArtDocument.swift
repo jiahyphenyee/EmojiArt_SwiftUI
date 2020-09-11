@@ -12,8 +12,23 @@ import SwiftUI
 class EmojiArtDocument: ObservableObject {
     
     static let palette: String = "👙🌂👑👘👔👠"
+    private static let untitled = "EmojiArtDocument.Untitled"
     @Published private(set) var backgroundImage: UIImage?
-    @Published private var emojiArt: EmojiArt = EmojiArt()
+    @Published private var emojiArt: EmojiArt {
+        
+        willSet{
+            objectWillChange.send()
+        }
+        didSet {
+            UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitled)   // save to persistent dict
+//            print("json: \(emojiArt.json?.utf8 ?? "nil")")
+        }
+    }
+    
+    init() {
+        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.untitled)) ?? EmojiArt()  // if fails to load, create new instance
+        fetchBackgroundImageData()
+    }
     
     // read only version of emojiArt
     var emojis: [EmojiArt.Emoji] { emojiArt.emojis }
@@ -38,11 +53,13 @@ class EmojiArtDocument: ObservableObject {
     }
     
     func setBackgroundURL(_ url: URL?) {
+        print("setting background url...")
         emojiArt.backgroundURL = url?.imageURL
         fetchBackgroundImageData()
     }
     
     private func fetchBackgroundImageData() {
+        print("fetch image from url...")
         backgroundImage = nil   // to show that the app has responded to the drop
         if let url = self.emojiArt.backgroundURL {
             // place action in background queue
