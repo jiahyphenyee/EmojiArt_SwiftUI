@@ -9,11 +9,11 @@
 import Foundation
 
 // Model
-struct EmojiArt {
+struct EmojiArt: Codable {
     var backgroundURL: URL?
     var emojis = [Emoji]()
     
-    struct Emoji: Identifiable {
+    struct Emoji: Identifiable, Codable, Hashable {
         let text: String
         var x: Int  // offset from center
         var y: Int  // offset from center, (0,0) in the middle
@@ -30,6 +30,21 @@ struct EmojiArt {
             self.id = id
         }
     }
+    
+    var json: Data? {
+        return try? JSONEncoder().encode(self)
+    }
+    
+    // failable init
+    init?( json: Data? ) {
+        if json != nil , let newEmojiArt = try? JSONDecoder().decode(EmojiArt.self, from: json!) {
+            self = newEmojiArt  // replace self
+        } else {
+            return nil
+        }
+    }
+    
+    init() { }
 
     private var uniqueEmojiId = 0
     
