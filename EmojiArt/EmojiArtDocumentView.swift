@@ -44,7 +44,7 @@ struct EmojiArtDocumentView: View {
                         }
                     } else {
                         // developer.apple.com/design -> SF Symbols
-                        Image(systemName: "timer").imageScale(.large).spinning()
+                        Image(systemName: "hourglass").imageScale(.large).spinning()
                     }
                 }
                 .clipped()
