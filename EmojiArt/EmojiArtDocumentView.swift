@@ -35,17 +35,26 @@ struct EmojiArtDocumentView: View {
                             .offset(self.panOffset)
                     )
                         .gesture(self.doubleTapToZoom(in: geometry.size))
-                    
-                    ForEach(self.document.emojis) { emoji in
-                        Text(emoji.text)
-                            .font(animatableWithSize: emoji.fontSize * self.zoomScale)
-                            .position(self.position(for: emoji, in: geometry.size))
+                    if !self.isLoading {
+                        // display emojis
+                        ForEach(self.document.emojis) { emoji in
+                            Text(emoji.text)
+                                .font(animatableWithSize: emoji.fontSize * self.zoomScale)
+                                .position(self.position(for: emoji, in: geometry.size))
+                        }
+                    } else {
+                        // developer.apple.com/design -> SF Symbols
+                        Image(systemName: "timer").imageScale(.large).spinning()
                     }
                 }
                 .clipped()
                 .gesture(self.panGesture())
                 .gesture(self.zoomGesture())
-                .edgesIgnoringSafeArea([.horizontal, .bottom])
+                .edgesIgnoringSafeArea([.horizontal, .bottom])  // ignore safe areas
+                    // calling publisher from View Model using onReceive()
+                .onReceive(self.document.$backgroundImage) { image in
+                        self.zoomToFit(image, in: geometry.size)
+                }
                 .onDrop(of: ["public.image", "public.text"], isTargeted: nil) { providers, location in
                     var location = geometry.convert(location, from: .global)    // convert from global device coordinate system
                     location = CGPoint(x: location.x - geometry.size.width/2, y: location.y - geometry.size.height/2)
@@ -55,6 +64,11 @@ struct EmojiArtDocumentView: View {
                 } // providers: NSItemProviders provide information of drops
             }
         }
+    }
+    
+    // check if background image is loading
+    var isLoading: Bool {
+        document.backgroundURL != nil && document.backgroundImage == nil
     }
     
     // temp variable for UI only, to adjust zoom
@@ -127,7 +141,7 @@ struct EmojiArtDocumentView: View {
     private func drop(providers: [NSItemProvider], at location: CGPoint) -> Bool {
         print("dropping image...")
         var found = providers.loadFirstObject(ofType: URL.self) { url in
-            self.document.setBackgroundURL(url)
+            self.document.backgroundURL = url
         }
         
         if !found {
