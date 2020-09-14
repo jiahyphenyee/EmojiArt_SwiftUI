@@ -13,6 +13,11 @@ struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     @State private var chosenPalette: String = ""
     
+    init(document: EmojiArtDocument) {
+        self.document = document
+        _chosenPalette = State(wrappedValue: self.document.defaultPalette)  // initialise State var
+    }
+    
     var body: some View {
         VStack {
             HStack {
@@ -28,7 +33,7 @@ struct EmojiArtDocumentView: View {
                         }
                     }
                 }
-                .onAppear{ self.chosenPalette = self.document.defaultPalette }
+//                .onAppear{ self.chosenPalette = self.document.defaultPalette }
 //                .layoutPriority(1)
             }
 //            .padding(.horizontal)   // default padding on left and right

@@ -11,6 +11,7 @@ import SwiftUI
 struct PaletteChooser: View {
     @ObservedObject var document: EmojiArtDocument
     @Binding var chosenPalette: String
+    @State private var showPaletteEditor = false
     
     var body: some View {
         HStack {
@@ -20,8 +21,22 @@ struct PaletteChooser: View {
                 self.chosenPalette = self.document.palette(before: self.chosenPalette)
             }, label: {EmptyView()})
             Text(self.document.paletteNames[self.chosenPalette] ?? "")
+            Image(systemName: "keyboard").imageScale(.large)
+                .onTapGesture {
+                    self.showPaletteEditor = true
+            }
+                .popover(isPresented: $showPaletteEditor) {
+                    PaletteEditor()
+            }
         }
         .fixedSize(horizontal: true, vertical: false)
+    }
+}
+
+
+struct PaletteEditor: View {
+    var body: some View {
+        Text("Palette Editor")
     }
 }
 
