@@ -25,6 +25,10 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
     }
     
     static let palette: String = "👙🌂👑👘👔👠"
+    
+    @Published var steadyStateZoomScale: CGFloat = 1.0
+    @Published var steadyStatePanOffset: CGSize = .zero
+    
     @Published private(set) var backgroundImage: UIImage?
     @Published private var emojiArt: EmojiArt
     
