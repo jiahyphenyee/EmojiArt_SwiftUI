@@ -72,6 +72,14 @@ struct EmojiArtDocumentView: View {
                     location = CGPoint(x: location.x/self.zoomScale, y: location.y/self.zoomScale)
                     return self.drop(providers: providers, at: location)
                 } // providers: NSItemProviders provide information of drops
+                .navigationBarItems(trailing: Button(action: {
+                    // shared pasteboard on the device
+                    if let url = UIPasteboard.general.url {
+                        self.document.backgroundURL = url
+                    }
+                }, label: {
+                    Image(systemName: "doc.on.clipboard").imageScale(.large)
+                }))
             }
         }
     }
@@ -109,7 +117,7 @@ struct EmojiArtDocumentView: View {
     }
     
     private func zoomToFit(_ image: UIImage?, in size: CGSize) {
-        if let image = image, size.width > 0, size.height > 0 {
+        if let image = image, size.width > 0, size.height > 0, size.height > 0, size.width > 0 {
             let hZoom = size.width / image.size.width
             let vZoom = size.height / image.size.height
             self.steadyStatePanOffset = CGSize.zero     // reset to center

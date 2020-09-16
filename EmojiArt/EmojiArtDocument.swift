@@ -10,13 +10,23 @@ import SwiftUI
 import Combine
 
 // View Model
-class EmojiArtDocument: ObservableObject {
+class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
+    
+    // make class Hashable and Identifiable
+    static func == (lhs: EmojiArtDocument, rhs: EmojiArtDocument) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    let id: UUID
+    
+    func hash(into hasher: inout Hasher) {
+        // combine hashable things (unique) to make type hashable
+        hasher.combine(id)
+    }
     
     static let palette: String = "👙🌂👑👘👔👠"
-    private static let untitled = "EmojiArtDocument.Untitled"
     @Published private(set) var backgroundImage: UIImage?
     @Published private var emojiArt: EmojiArt
-    
     
 //    @Published private var emojiArt: EmojiArt {
 //
@@ -30,12 +40,14 @@ class EmojiArtDocument: ObservableObject {
     
     private var autosaveCancellable: AnyCancellable?    // type erased of Cancellable
     
-    init() {
-        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.untitled)) ?? EmojiArt()  // if fails to load, create new instance
+    init(id: UUID? = nil) {
+        self.id = id ?? UUID()  // defaulting here: init can now be called without arguments, with UUID or or we can call with nil - this keeps the default value for internal view
+        let defaultKey = "EmojiArtDocument.\(self.id.uuidString)"
+        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: defaultKey)) ?? EmojiArt()  // if fails to load, create new instance
         // subscribing to Publisher, links this subscriber to thie View Model
         autosaveCancellable = $emojiArt.sink { emojiArt in
             print("json: \(emojiArt.json?.utf8 ?? "nil")")
-            UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitled)   // save to persistent dict
+            UserDefaults.standard.set(emojiArt.json, forKey: defaultKey)   // save to persistent dict
         }
         fetchBackgroundImageData()
     }
