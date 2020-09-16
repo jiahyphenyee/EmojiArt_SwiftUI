@@ -11,7 +11,7 @@ import Combine
 
 // View Model
 class EmojiArtDocumentStore: ObservableObject {
-    let name: String
+    let name: String        // name of the store
     
     func name(for document: EmojiArtDocument) -> String {
         if documentNames[document] == nil {
@@ -36,7 +36,7 @@ class EmojiArtDocumentStore: ObservableObject {
         documentNames[document] = nil
     }
     
-    @Published private var documentNames = [EmojiArtDocument:String]()
+    @Published private var documentNames = [EmojiArtDocument: String]()
     
     private var autosave: AnyCancellable?
     
@@ -46,6 +46,24 @@ class EmojiArtDocumentStore: ObservableObject {
         documentNames = Dictionary(fromPropertyList: UserDefaults.standard.object(forKey: defaultsKey))
         autosave = $documentNames.sink { names in
             UserDefaults.standard.set(names.asPropertyList, forKey: defaultsKey)
+        }
+    }
+    
+    private var directory: URL?
+    
+    init(directory: URL) {
+        self.name = directory.lastPathComponent     // grab the last component
+        self.directory = directory
+        // look at what's in the file system
+        do {
+            let documents = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+            
+            for document in documents {
+                let emojiArtDocument = EmojiArtDocument(url: directory.appendingPathComponent(document))
+                self.documentNames[emojiArtDocument] = document
+            }
+        } catch {
+            print("Could not create store from directory \(directory): \(error.localizedDescription)")
         }
     }
 }
