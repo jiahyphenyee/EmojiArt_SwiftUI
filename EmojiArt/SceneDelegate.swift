@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Create the SwiftUI view that provides the window contents.
 //        let store = EmojiArtDocumentStore(named: "Emoji Art")
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!        // return an array
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!        // gets document directory from the sandbox
         let store = EmojiArtDocumentStore(directory: url)
         let contentView = EmojiArtDocumentChooser().environmentObject(store)
  
