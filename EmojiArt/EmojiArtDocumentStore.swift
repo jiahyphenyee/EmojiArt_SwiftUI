@@ -21,7 +21,18 @@ class EmojiArtDocumentStore: ObservableObject {
     }
     
     func setName(_ name: String, for document: EmojiArtDocument) {
-        documentNames[document] = name
+        
+        if let url = directory?.appendingPathComponent(name) {
+            if !documentNames.values.contains(name) {
+                removeDocument(document)    // in case it is a rename
+                document.url = url
+                documentNames[document] = name
+            } else {
+                // don't allow renaming to existing name
+                // we can add an alert
+                documentNames[document] = name
+            }
+        }
     }
     
     var documents: [EmojiArtDocument] {
