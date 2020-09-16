@@ -25,8 +25,11 @@ struct PaletteChooser: View {
                 .onTapGesture {
                     self.showPaletteEditor = true
             }
+                // every time we are presenting our model in a separate view, we pass the model as an @EnvironmentObject
                 .popover(isPresented: $showPaletteEditor) {
-                    PaletteEditor()
+                    PaletteEditor(chosenPalette: self.$chosenPalette)
+                        .environmentObject(self.document)
+                        .frame(minWidth: 300, minHeight: 500)  // have a minimum size
             }
         }
         .fixedSize(horizontal: true, vertical: false)
@@ -35,8 +38,51 @@ struct PaletteChooser: View {
 
 
 struct PaletteEditor: View {
+    @EnvironmentObject var document: EmojiArtDocument
+    @Binding var chosenPalette: String
+    @State private var paletteName: String = ""
+    @State private var emojisToAdd: String = ""
+    
     var body: some View {
-        Text("Palette Editor")
+        VStack (spacing: 0) {
+            Text("Palette Editor").font(.headline).padding()
+            Divider()
+            Form {
+                Section {
+                    TextField("Palette Name", text: $paletteName, onEditingChanged: { began in
+                        if !began {
+                            self.document.renamePalette(self.chosenPalette, to: self.paletteName)
+                        }
+                    })
+                    TextField("Palette Name", text: $emojisToAdd, onEditingChanged: { began in
+                        if !began {
+                            self.chosenPalette = self.document.addEmoji(self.emojisToAdd, toPalette: self.chosenPalette)
+                            self.emojisToAdd = ""
+                        }
+                    })
+                }
+                Section (header: Text("Remove Emoji")) {
+                    Grid(chosenPalette.map {String($0)}, id: \.self) { emoji in
+                        Text(emoji)
+                            .font(Font.system(size: self.fontSize))
+                            .onTapGesture {
+                                self.chosenPalette = self.document.removeEmoji(emoji, fromPalette: self.chosenPalette)
+                        }
+                    }
+                    .frame(height: self.height)
+                }
+            }
+        }
+        .onAppear {
+            self.paletteName = self.document.paletteNames[self.chosenPalette] ?? ""
+        }
+    }
+    
+    // MARK: - Drawing Constants
+    var fontSize: CGFloat = 40
+    
+    var height: CGFloat {
+        CGFloat((chosenPalette.count - 1) / 6) * 70 + 70
     }
 }
 
