@@ -29,10 +29,20 @@ class EmojiArtDocumentStore: ObservableObject {
     }
     
     func addDocument(named name: String = "Untitled") {
-        documentNames[EmojiArtDocument()] = name
+        let uniqueName = name.uniqued(withRespectTo: documentNames.values)      // in filesystem, cannot store multiple documents with the same name
+        let document: EmojiArtDocument
+        if let url = directory?.appendingPathComponent(uniqueName) {
+            document = EmojiArtDocument(url: url)
+        } else {
+            document = EmojiArtDocument()
+        }
+        documentNames[document] = uniqueName
     }
 
     func removeDocument(_ document: EmojiArtDocument) {
+        if let name = documentNames[document], let url = directory?.appendingPathComponent(name) {
+            try? FileManager.default.removeItem(at: url)
+        }
         documentNames[document] = nil
     }
     
@@ -51,6 +61,7 @@ class EmojiArtDocumentStore: ObservableObject {
     
     private var directory: URL?
     
+    // read the contents of the filesystem  directory
     init(directory: URL) {
         self.name = directory.lastPathComponent     // grab the last component
         self.directory = directory

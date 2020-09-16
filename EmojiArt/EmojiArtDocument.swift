@@ -58,6 +58,7 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
     
     var url: URL? { didSet { self.save(self.emojiArt) } }   // autosave url
     
+    // init with filesystem directory
     init(url: URL) {
         self.id = UUID()
         self.url = url
