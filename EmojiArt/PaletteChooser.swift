@@ -26,18 +26,18 @@ struct PaletteChooser: View {
                     self.showPaletteEditor = true
             }
                 // every time we are presenting our model in a separate view, we pass the model as an @EnvironmentObject
-                .sheet(isPresented: $showPaletteEditor) {
-                    PaletteEditor(chosenPalette: self.$chosenPalette, isShowing: self.$showPaletteEditor)
-                    .environmentObject(self.document)
-                    .frame(minWidth: 300, minHeight: 500)  // have a minimum size
-                }
+//                .sheet(isPresented: $showPaletteEditor) {
+//                    PaletteEditor(chosenPalette: self.$chosenPalette, isShowing: self.$showPaletteEditor)
+//                    .environmentObject(self.document)
+//                    .frame(minWidth: 300, minHeight: 500)  // have a minimum size
+//                }
 
             // OR USE
-//                .popover(isPresented: $showPaletteEditor) {
-//                    PaletteEditor(chosenPalette: self.$chosenPalette)
-//                        .environmentObject(self.document)
-//                        .frame(minWidth: 300, minHeight: 500)  // have a minimum size
-//              }
+                .popover(isPresented: $showPaletteEditor) {
+                    PaletteEditor(chosenPalette: self.$chosenPalette, isShowing: self.$showPaletteEditor)
+                        .environmentObject(self.document)
+                        .frame(minWidth: 300, minHeight: 500)  // have a minimum size
+              }
         }
         .fixedSize(horizontal: true, vertical: false)
     }

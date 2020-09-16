@@ -90,6 +90,7 @@ struct EmojiArtDocumentView: View {
                     )
                 }))
             }
+            .zIndex(-1) // keep this view (of image) in the back
         }
         .alert(isPresented: self.$confirmBackgroundPaste) {
             return Alert(
